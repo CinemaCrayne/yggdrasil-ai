@@ -1,5 +1,5 @@
 from datetime import datetime
-from yggdrasil.rag import add_memory
+from yggdrasil_ai.rag import add_memory
 
 def create_memory(id, code, notes, priority, branch, ai_name="YggdrasilBot"):
     return {
