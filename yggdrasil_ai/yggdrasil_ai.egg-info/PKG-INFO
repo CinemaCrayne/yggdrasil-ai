@@ -1,0 +1,21 @@
+Metadata-Version: 2.4
+Name: yggdrasil_ai
+Version: 0.1.0
+Summary: Reflective memory architecture for autonomous agents using LLMs + Pinecone + OpenAI
+Author: Your Name
+Author-email: you@example.com
+Classifier: Programming Language :: Python :: 3
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.8
+Requires-Dist: openai>=1.0.0
+Requires-Dist: pinecone-client>=3.0.0
+Requires-Dist: python-dotenv
+Requires-Dist: ratelimit
+Requires-Dist: tqdm
+Requires-Dist: streamlit
+Dynamic: author
+Dynamic: author-email
+Dynamic: classifier
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary

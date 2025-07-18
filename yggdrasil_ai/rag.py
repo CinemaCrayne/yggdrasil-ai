@@ -1,0 +1,135 @@
+# yggdrasil_ai/rag.py
+
+import os
+import time
+import sys
+from dotenv import load_dotenv
+from openai import OpenAI
+from pinecone import Pinecone, ServerlessSpec
+from datetime import datetime
+from typing import List, Dict
+from ratelimit import limits, sleep_and_retry
+
+# === CONFIGURATION ===
+load_dotenv()
+
+openai_api_key = os.getenv("OPENAI_API_KEY")
+if not openai_api_key:
+    raise ValueError("Missing OPENAI_API_KEY in environment or .env file")
+client = OpenAI(api_key=openai_api_key)
+
+pinecone_api_key = os.getenv("PINECONE_API_KEY")
+if not pinecone_api_key:
+    raise ValueError("Missing PINECONE_API_KEY in environment or .env file")
+
+# === SANITIZATION ===
+def remove_non_ascii(value: str) -> str:
+    clean = value.encode("ascii", "ignore").decode()
+    if clean != value:
+        print(f"[WARN] Removed non-ASCII from env value: '{value}' → '{clean}'", file=sys.stderr)
+    return clean
+
+def sanitize_metadata(md: Dict) -> Dict:
+    sanitized = {}
+    for k, v in md.items():
+        original = str(v)
+        cleaned = remove_non_ascii(original)
+        if original != cleaned:
+            print(f"[WARN] Non-ASCII removed from '{k}': '{original}' → '{cleaned}'")
+        sanitized[k] = cleaned
+    return sanitized
+
+# Sanitize env values before using them
+PINECONE_INDEX_NAME = remove_non_ascii(os.getenv("PINECONE_INDEX_NAME", "yggdrasil-memory"))
+PINECONE_CLOUD = remove_non_ascii(os.getenv("PINECONE_CLOUD", "aws"))
+PINECONE_ENVIRONMENT = remove_non_ascii(os.getenv("PINECONE_ENVIRONMENT", "us-east-1"))
+
+# === INIT PINECONE ===
+pc = Pinecone(api_key=pinecone_api_key)
+VECTOR_DIM = 1536
+EMBED_MODEL = "text-embedding-3-small"
+LLM_MODEL = "gpt-4o"
+
+# === RATE LIMITS (OpenAI recommendation) ===
+MAX_CALLS_PER_MINUTE = 60
+MAX_CALLS_PER_SECOND = 3
+
+# === RATE-LIMITED CALLS ===
+@sleep_and_retry
+@limits(calls=MAX_CALLS_PER_SECOND, period=1)
+def rate_limited_embed_call(text: str):
+    return client.embeddings.create(
+        model=EMBED_MODEL,
+        input=[text]
+    )
+
+@sleep_and_retry
+@limits(calls=MAX_CALLS_PER_SECOND, period=1)
+def rate_limited_chat_call(prompt: str):
+    return client.chat.completions.create(
+        model=LLM_MODEL,
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.3
+    )
+
+# === ENSURE INDEX EXISTS ===
+try:
+    existing = pc.list_indexes().names()
+    if PINECONE_INDEX_NAME not in existing:
+        pc.create_index(
+            name=PINECONE_INDEX_NAME,
+            dimension=VECTOR_DIM,
+            spec=ServerlessSpec(
+                cloud=PINECONE_CLOUD,
+                region=PINECONE_ENVIRONMENT
+            )
+        )
+except UnicodeEncodeError as e:
+    raise RuntimeError(f"[FATAL] Unicode issue during index check: {e}")
+
+# === CONNECT TO INDEX ===
+pinecone_index = pc.Index(name=PINECONE_INDEX_NAME)
+
+# === MEMORY STRUCTURE ===
+def format_memory_block(memory: Dict) -> str:
+    return f"[{memory['priority']}][{memory['branch']}] Code: {memory['code']} – {memory['notes']}"
+
+def build_prompt(memories: List[Dict], user_query: str) -> str:
+    formatted = "\n".join([format_memory_block(m) for m in memories])
+    return f"""\nYou are YggdrasilBot, a memory-powered AI. Use the following memories to answer the question.\n\n=== Memory Context ===\n{formatted}\n=== End Context ===\n\nUser's question: {user_query}\nAnswer concisely, citing memory codes where relevant.\n""".strip()
+
+# === EMBEDDING ===
+def embed_text(text: str) -> List[float]:
+    response = rate_limited_embed_call(text)
+    return response.data[0].embedding
+
+# === INGESTION ===
+def add_memory(memory: Dict):
+    embedding = embed_text(memory["notes"])
+    pine_id = memory["id"]
+
+    metadata = sanitize_metadata({
+        "priority": memory["priority"],
+        "branch": memory["branch"],
+        "code": memory["code"],
+        "ai_name": memory.get("ai_name", "YggdrasilBot"),
+        "notes": memory["notes"],
+        "date_last_updated": memory.get("date_last_updated", datetime.now().isoformat())
+    })
+
+    pinecone_index.upsert([
+        (pine_id, embedding, metadata)
+    ])
+
+# === RETRIEVAL ===
+def retrieve_memories(query: str, top_k: int = 5) -> List[Dict]:
+    query_vector = embed_text(query)
+    result = pinecone_index.query(vector=query_vector, top_k=top_k, include_metadata=True)
+    return [match.metadata for match in result.matches]
+
+# === RESPONSE GENERATION ===
+def ask_yggdrasil(query: str) -> str:
+    retrieved = retrieve_memories(query)
+    prompt = build_prompt(retrieved, query)
+    response = rate_limited_chat_call(prompt)
+    return response.choices[0].message.content.strip()

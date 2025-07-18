@@ -1,0 +1,32 @@
+openapi: 3.0.1
+info:
+  title: Yggdrasil AI Plugin
+  description: Plugin for accessing the Yggdrasil memory system.
+  version: "1.0.0"
+servers:
+  - url: https://yourdomain.com
+
+paths:
+  /ask:
+    post:
+      operationId: askYggdrasil
+      summary: Ask the AI memory system
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                query:
+                  type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  response:
+                    type: string

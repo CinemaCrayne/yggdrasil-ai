@@ -1,0 +1,44 @@
+# verify_yggdrasil_layout.py
+
+import os
+
+REQUIRED_STRUCTURE = {
+    "yggdrasil_ai": [
+        "__init__.py",
+        "rag.py",
+        "minerva_loop.py",
+        "memory_manager.py"
+    ],
+    ".": [
+        "run_minerva.py",
+        "setup.py",
+        "requirements.txt",
+        ".env"
+    ]
+}
+
+def check_structure(base_path):
+    print(f"🔍 Verifying structure in: {base_path}\n")
+    errors = 0
+
+    for folder, files in REQUIRED_STRUCTURE.items():
+        folder_path = os.path.join(base_path, folder)
+        if not os.path.isdir(folder_path):
+            print(f"❌ Missing folder: {folder_path}")
+            errors += 1
+            continue
+        for file in files:
+            file_path = os.path.join(folder_path, file)
+            if not os.path.isfile(file_path):
+                print(f"❌ Missing file: {file_path}")
+                errors += 1
+            else:
+                print(f"✅ Found: {file_path}")
+
+    if errors == 0:
+        print("\n✅ Project layout looks good!")
+    else:
+        print(f"\n❗ Detected {errors} issue(s) in project structure.")
+
+if __name__ == "__main__":
+    check_structure(os.getcwd())

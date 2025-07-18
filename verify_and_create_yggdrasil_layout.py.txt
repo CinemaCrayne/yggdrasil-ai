@@ -1,0 +1,83 @@
+import os
+
+REQUIRED_STRUCTURE = {
+    "yggdrasil_ai": [
+        "__init__.py",
+        "rag.py",
+        "minerva_loop.py",
+        "memory_manager.py"
+    ],
+    ".": [
+        "run_minerva.py",
+        "setup.py",
+        "requirements.txt",
+        ".env"
+    ]
+}
+
+DEFAULT_FILE_CONTENT = {
+    "run_minerva.py": '''from yggdrasil_ai.minerva_loop import minerva_reflection_loop
+from dotenv import load_dotenv; load_dotenv()
+
+if __name__ == "__main__":
+    print("🌳 Starting Minerva loop...")
+    minerva_reflection_loop()
+''',
+    "setup.py": '''from setuptools import setup, find_packages
+
+setup(
+    name='yggdrasil_ai',
+    version='0.1.0',
+    packages=find_packages(),
+    install_requires=[
+        'openai>=1.0.0',
+        'pinecone-client>=3.0.0',
+        'python-dotenv',
+        'ratelimit',
+        'streamlit'
+    ],
+    python_requires='>=3.8',
+)
+''',
+    "requirements.txt": '''openai>=1.0.0
+pinecone-client>=3.0.0
+python-dotenv
+ratelimit
+streamlit
+''',
+    ".env": '''OPENAI_API_KEY=your-openai-key
+PINECONE_API_KEY=your-pinecone-key
+''',
+    "yggdrasil_ai/__init__.py": '',
+    "yggdrasil_ai/rag.py": '# rag.py placeholder\n',
+    "yggdrasil_ai/minerva_loop.py": '# minerva_loop.py placeholder\n',
+    "yggdrasil_ai/memory_manager.py": '# memory_manager.py placeholder\n'
+}
+
+def ensure_structure(base_path):
+    print(f"🔍 Checking layout in: {base_path}\n")
+    errors = 0
+
+    for folder, files in REQUIRED_STRUCTURE.items():
+        folder_path = os.path.join(base_path, folder)
+        if not os.path.isdir(folder_path):
+            print(f"📁 Creating missing folder: {folder_path}")
+            os.makedirs(folder_path)
+        for file in files:
+            file_path = os.path.join(folder_path, file)
+            if not os.path.isfile(file_path):
+                print(f"📝 Creating: {file_path}")
+                with open(file_path, 'w', encoding='utf-8') as f:
+                    content_key = f"{folder}/{file}" if folder != "." else file
+                    f.write(DEFAULT_FILE_CONTENT.get(content_key, "# Placeholder\n"))
+                errors += 1
+            else:
+                print(f"✅ Found: {file_path}")
+
+    if errors == 0:
+        print("\n✅ All files and folders are present.")
+    else:
+        print(f"\n🛠 Created {errors} missing file(s). You're ready to go!")
+
+if __name__ == "__main__":
+    ensure_structure(os.getcwd())

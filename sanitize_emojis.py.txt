@@ -1,0 +1,66 @@
+import os
+import re
+from pathlib import Path
+
+# Base path of your project (you can modify this)
+BASE_DIR = Path(".")  # current folder, or use Path("/your/project/path")
+
+# Emoji-safe replacements (extend as needed)
+EMOJI_MAP = {
+    "✅": "[OK]",
+    "🧠": "[MEM]",
+    "🔍": "[LOOKUP]",
+    "🌲": "[TREE]",
+    "⚠️": "[WARN]",
+    "🔥": "[HOT]",
+    "❌": "[FAIL]",
+    "ℹ️": "[INFO]",
+    "🔧": "[SETUP]",
+    "🔁": "[LOOP]",
+    "💡": "[IDEA]",
+    "📦": "[PKG]",
+    "🛠️": "[BUILD]",
+    "📄": "[FILE]",
+    "➕": "[ADD]",
+    "➖": "[SKIP]",
+}
+
+def replace_emojis(line):
+    for emoji, replacement in EMOJI_MAP.items():
+        if emoji in line:
+            line = line.replace(emoji, replacement)
+    return line
+
+def sanitize_file(filepath: Path):
+    if filepath.suffix != ".py":
+        return
+
+    with filepath.open(encoding="utf-8") as f:
+        lines = f.readlines()
+
+    changed = False
+    new_lines = []
+
+    for line in lines:
+        if "print(" in line or "logging." in line:
+            new_line = replace_emojis(line)
+            if new_line != line:
+                changed = True
+            new_lines.append(new_line)
+        else:
+            new_lines.append(line)
+
+    if changed:
+        with filepath.open("w", encoding="utf-8") as f:
+            f.writelines(new_lines)
+        print(f"🧼 Cleaned emojis in: {filepath}")
+
+def sanitize_directory(base: Path):
+    for path in base.rglob("*.py"):
+        sanitize_file(path)
+
+# Run it
+if __name__ == "__main__":
+    print("🚫 Removing emojis from print/log lines...")
+    sanitize_directory(BASE_DIR)
+    print("✅ Done.")

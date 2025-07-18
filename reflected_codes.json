@@ -1,0 +1,17 @@
+{
+  "schema_version": "v1",
+  "name_for_human": "Yggdrasil AI",
+  "name_for_model": "yggdrasil",
+  "description_for_human": "Query AI memory from the Yggdrasil system.",
+  "description_for_model": "Use this plugin to store or retrieve AI memories from Yggdrasil memory system.",
+  "auth": {
+    "type": "none"
+  },
+  "api": {
+    "type": "openapi",
+    "url": "https://yourdomain.com/openapi.yaml"
+  },
+  "logo_url": "https://yourdomain.com/logo.png",
+  "contact_email": "you@example.com",
+  "legal_info_url": "https://yourdomain.com/legal"
+}
