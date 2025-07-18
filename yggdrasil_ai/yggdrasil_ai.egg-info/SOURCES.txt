@@ -1,8 +1,7 @@
+pyproject.toml
 setup.py
 yggdrasil_ai.egg-info/PKG-INFO
 yggdrasil_ai.egg-info/SOURCES.txt
 yggdrasil_ai.egg-info/dependency_links.txt
-yggdrasil_ai.egg-info/entry_points.txt
-yggdrasil_ai.egg-info/requires.txt
 yggdrasil_ai.egg-info/top_level.txt
 yggdrasil_ai.egg-info/yggdrasil__init__.py.py

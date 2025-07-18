@@ -1,0 +1,9 @@
+openai
+pinecone
+python-dotenv
+ratelimit
+
+[dev]
+pytest
+black
+isort

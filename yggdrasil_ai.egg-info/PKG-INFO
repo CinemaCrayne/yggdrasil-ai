@@ -1,5 +1,56 @@
 Metadata-Version: 2.4
 Name: yggdrasil_ai
 Version: 0.1.0
+Summary: Memory-powered AI system inspired by Yggdrasil architecture.
+Home-page: https://github.com/CinemaCrayne/yggdrasil-ai
+Author: Nick Crayne
+Author-email: nickacrayne@gmail.com
+License: MIT
+Keywords: AI,memory,pinecone,openai,rag,yggdrasil
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
 License-File: LICENSE
+Requires-Dist: openai
+Requires-Dist: pinecone
+Requires-Dist: python-dotenv
+Requires-Dist: ratelimit
+Provides-Extra: dev
+Requires-Dist: pytest; extra == "dev"
+Requires-Dist: black; extra == "dev"
+Requires-Dist: isort; extra == "dev"
 Dynamic: license-file
+
+# Yggdrasil AI 🌳🦉
+
+A memory-guided autonomous reasoning system inspired by the Minerva's Owl Protocol.
+
+## Features
+- Embeds and stores contextual memory in Pinecone
+- Retrieves relevant memory for any user question
+- Uses OpenAI GPT models to generate responses with memory context
+- CLI command: `yggdrasil "What are my active goals?"`
+
+## Setup
+
+```bash
+pip install -e .
+cp .env.example .env
+```
+
+Then run:
+
+```bash
+yggdrasil "What does the owl protocol mean?"
+```
+
+## Environment Variables
+
+Set these in a `.env` file:
+
+```dotenv
+OPENAI_API_KEY=sk-...
+PINECONE_API_KEY=pcsk-...
+```
+
+## License
+MIT

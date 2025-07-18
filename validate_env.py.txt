@@ -1,0 +1,64 @@
+import os
+from pathlib import Path
+from dotenv import load_dotenv
+
+# Required and optional environment variables
+REQUIRED_VARS = {
+    "OPENAI_API_KEY": "sk-...",
+    "PINECONE_API_KEY": "pcsk-...",
+    "PINECONE_INDEX_NAME": "yggdrasil-memory",
+    "PINECONE_ENVIRONMENT": "us-east-1",
+    "PINECONE_CLOUD": "aws"
+}
+
+OPTIONAL_VARS = {
+    "OPENAI_EMBEDDING_MODEL": "text-embedding-3-small",
+    "OPENAI_RPM": "10",
+    "OPENAI_TPM": "500"
+}
+
+env_path = Path(".env")
+load_dotenv(dotenv_path=env_path)
+
+def mask(val):
+    return val[:6] + "..." if val else ""
+
+def prompt_missing(var, example):
+    try:
+        return input(f"🔧 Enter value for {var} (e.g. {example}): ").strip()
+    except KeyboardInterrupt:
+        print("\n❌ Cancelled by user.")
+        exit()
+
+def append_to_env(var, value):
+    with open(env_path, "a", encoding="utf-8") as f:
+        f.write(f"{var}={value}\n")
+
+def validate_env():
+    print("🔍 Validating .env...\n")
+
+    if not env_path.exists():
+        env_path.touch()
+        print("📄 Created new .env file.\n")
+
+    for var, example in REQUIRED_VARS.items():
+        val = os.getenv(var)
+        if val:
+            print(f"[OK] {var} = {mask(val)}")
+        else:
+            print(f"[MISSING] {var} not set.")
+            new_val = prompt_missing(var, example)
+            append_to_env(var, new_val)
+            print(f"[ADDED] {var} written to .env\n")
+
+    for var, example in OPTIONAL_VARS.items():
+        val = os.getenv(var)
+        if val:
+            print(f"[INFO] Optional {var} = {mask(val)}")
+        else:
+            print(f"[SKIP] Optional {var} not set.")
+
+    print("\n✅ .env validation complete.")
+
+if __name__ == "__main__":
+    validate_env()

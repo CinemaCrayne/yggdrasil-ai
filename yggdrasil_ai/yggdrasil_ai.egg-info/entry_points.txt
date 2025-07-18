@@ -1,2 +1,0 @@
-[console_scripts]
-run-minerva = run_minerva:main
