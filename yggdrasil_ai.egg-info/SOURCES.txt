@@ -1,3 +1,4 @@
+LICENSE
 README.md
 pyproject.toml
 setup.py
@@ -9,6 +10,7 @@ yggdrasil_ai/memory_utils.py
 yggdrasil_ai/minerva_loop.py
 yggdrasil_ai/rag.py
 yggdrasil_ai/setup.py
+yggdrasil_ai/test_add_memory.py.py
 yggdrasil_ai/yggdrasil__init__.py.py
 yggdrasil_ai.egg-info/PKG-INFO
 yggdrasil_ai.egg-info/SOURCES.txt
