@@ -1,0 +1,17 @@
+{
+  "schema_version": "v1",
+  "name_for_model": "yggdrasil_ai",
+  "name_for_human": "Yggdrasil AI",
+  "description_for_model": "Access memory and answer questions using Yggdrasil AI.",
+  "description_for_human": "Query Yggdrasil AI for context-aware memory and responses.",
+  "auth": {
+    "type": "none"
+  },
+  "api": {
+    "type": "openapi",
+    "url": "https://yggdrasil-ai.onrender.com/openapi.yaml"
+  },
+  "logo_url": "https://yggdrasil-ai.onrender.com/logo.png",
+  "contact_email": "nickacrayne@gmail.com",
+  "legal_info_url": "https://yggdrasil-ai.onrender.com/legal"
+}
