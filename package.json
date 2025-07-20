@@ -1,0 +1,24 @@
+{
+  "name": "yggdrasil-ai",
+  "version": "1.0.0",
+  "description": "A memory-guided autonomous reasoning system inspired by the Minerva's Owl Protocol.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CinemaCrayne/yggdrasil-ai.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/CinemaCrayne/yggdrasil-ai/issues"
+  },
+  "homepage": "https://github.com/CinemaCrayne/yggdrasil-ai#readme",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
