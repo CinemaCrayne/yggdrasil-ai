@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: yggdrasil-api
+    env: python
+    plan: free
+    region: oregon  # or use ohio/europe depending on your location
+    branch: main     # change if you deploy from a different branch
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    healthCheckPath: /status
+    autoDeploy: true
