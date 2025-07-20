@@ -1,32 +1,65 @@
-openapi: 3.0.1
+openapi: 3.1.0
 info:
-  title: Yggdrasil AI Plugin
-  description: Plugin for accessing the Yggdrasil memory system.
+  title: Voice Invocation API
   version: "1.0.0"
+  description: >
+    An API for invoking archetypal moral voices to respond to ethical and emotional challenges.
+
 servers:
-  - url: https://yourdomain.com
+  - url: https://yggdrasil-ai.onrender.com
+    description: Production server
 
 paths:
-  /ask:
+  /invoke:
     post:
-      operationId: askYggdrasil
-      summary: Ask the AI memory system
+      operationId: invokeVoice
+      summary: Invoke a moral voice archetype
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                query:
-                  type: string
+              $ref: '#/components/schemas/InvocationRequest'
       responses:
         '200':
-          description: Successful response
+          description: Successful invocation response
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  response:
-                    type: string
+                $ref: '#/components/schemas/InvocationResponse'
+
+components:
+  schemas:
+    InvocationRequest:
+      type: object
+      properties:
+        voice:
+          type: string
+          enum:
+            - aegis_guardian
+            - maitreya_empath
+            - samanvaya_mediator
+            - siddhartha_conscience
+            - unchained_witness
+            - avasrota_memory
+        context:
+          type: string
+        grief_source:
+          type: string
+        conflict:
+          type: string
+        decision_point:
+          type: string
+        injustice:
+          type: string
+        forgotten:
+          type: string
+      required:
+        - voice
+
+    InvocationResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          description: The invoked response from the moral voice.
