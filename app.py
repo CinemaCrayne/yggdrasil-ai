@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify, send_file, send_from_directory
-from yggdrasil_ai.rag import add_memory, ask_yggdrasil
+from yggdrasil_ai.rag import add_memory, ask_yggdrasil, embed_memory_text, store_memory_vector, query_memory_vector
 from uuid import uuid4
 from flask_cors import CORS
 
@@ -40,7 +40,6 @@ def ask():
     answer = ask_yggdrasil(query)
     return jsonify({"response": answer})
 
-# New route to handle Custom GPT Action calls
 @app.route("/invoke", methods=["POST"])
 def invoke_voice():
     data = request.get_json()
@@ -70,11 +69,38 @@ def invoke_voice():
 
     return jsonify({"message": message})
 
+@app.route("/memory/store", methods=["POST"])
+def store_memory():
+    data = request.get_json()
+    content = data.get("content")
+    tags = data.get("tags", [])
+    memory_type = data.get("type", "note")
+
+    if not content:
+        return jsonify({"error": "Missing content field"}), 400
+
+    vector = embed_memory_text(content)
+    result = store_memory_vector(content, vector, tags, memory_type)
+
+    return jsonify({"status": "stored", "id": result}), 200
+
+@app.route("/memory/query", methods=["POST"])
+def query_memory():
+    data = request.get_json()
+    query = data.get("query")
+
+    if not query:
+        return jsonify({"error": "Missing query field"}), 400
+
+    vector = embed_memory_text(query)
+    results = query_memory_vector(vector)
+
+    return jsonify({"matches": results}), 200
+
 @app.route("/", methods=["GET"])
 def root():
     return jsonify({"status": "Yggdrasil AI API is running"}), 200
 
-# Local dev server (disabled in production)
 if __name__ == "__main__":
     import os
     if os.environ.get("FLASK_ENV") != "production":

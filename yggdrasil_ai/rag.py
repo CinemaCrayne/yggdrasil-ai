@@ -9,6 +9,7 @@ from pinecone import Pinecone, ServerlessSpec
 from datetime import datetime
 from typing import List, Dict
 from ratelimit import limits, sleep_and_retry
+from uuid import uuid4
 
 # === CONFIGURATION ===
 load_dotenv()
@@ -103,6 +104,9 @@ def embed_text(text: str) -> List[float]:
     response = rate_limited_embed_call(text)
     return response.data[0].embedding
 
+def embed_memory_text(text: str) -> List[float]:
+    return embed_text(text)
+
 # === INGESTION ===
 def add_memory(memory: Dict):
     embedding = embed_text(memory["notes"])
@@ -121,11 +125,26 @@ def add_memory(memory: Dict):
         (pine_id, embedding, metadata)
     ])
 
+def store_memory_vector(content: str, vector: List[float], tags: List[str], memory_type: str) -> str:
+    memory_id = str(uuid4())
+    metadata = sanitize_metadata({
+        "content": content,
+        "tags": ",".join(tags),
+        "type": memory_type,
+        "timestamp": datetime.now().isoformat()
+    })
+    pinecone_index.upsert([(memory_id, vector, metadata)])
+    return memory_id
+
 # === RETRIEVAL ===
 def retrieve_memories(query: str, top_k: int = 5) -> List[Dict]:
     query_vector = embed_text(query)
     result = pinecone_index.query(vector=query_vector, top_k=top_k, include_metadata=True)
     return [match.metadata for match in result.matches]
+
+def query_memory_vector(vector: List[float], top_k: int = 5) -> List[Dict]:
+    result = pinecone_index.query(vector=vector, top_k=top_k, include_metadata=True)
+    return [{"score": match.score, "metadata": match.metadata} for match in result.matches]
 
 # === RESPONSE GENERATION ===
 def ask_yggdrasil(query: str) -> str:
