@@ -70,6 +70,10 @@ def invoke_voice():
 
     return jsonify({"message": message})
 
+@app.route("/", methods=["GET"])
+def root():
+    return jsonify({"status": "Yggdrasil AI API is running"}), 200
+
 # Local dev server (disabled in production)
 if __name__ == "__main__":
     import os
