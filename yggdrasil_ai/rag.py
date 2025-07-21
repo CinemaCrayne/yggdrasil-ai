@@ -121,6 +121,8 @@ def add_memory(memory: Dict):
         "date_last_updated": memory.get("date_last_updated", datetime.now().isoformat())
     })
 
+    print(f"[DEBUG] Upserting memory with metadata: {metadata}")
+
     pinecone_index.upsert([
         (pine_id, embedding, metadata)
     ])
@@ -133,6 +135,9 @@ def store_memory_vector(content: str, vector: List[float], tags: List[str], memo
         "type": memory_type,
         "timestamp": datetime.now().isoformat()
     })
+
+    print(f"[DEBUG] Storing vector with metadata: {metadata}")
+
     pinecone_index.upsert([(memory_id, vector, metadata)])
     return memory_id
 
@@ -140,11 +145,11 @@ def store_memory_vector(content: str, vector: List[float], tags: List[str], memo
 def retrieve_memories(query: str, top_k: int = 5) -> List[Dict]:
     query_vector = embed_text(query)
     result = pinecone_index.query(vector=query_vector, top_k=top_k, include_metadata=True)
-    return [match.metadata for match in result.matches]
+    return [match.metadata or {} for match in result.matches]
 
 def query_memory_vector(vector: List[float], top_k: int = 5) -> List[Dict]:
     result = pinecone_index.query(vector=vector, top_k=top_k, include_metadata=True)
-    return [{"score": match.score, "metadata": match.metadata} for match in result.matches]
+    return [{"score": match.score, "metadata": match.metadata or {}} for match in result.matches]
 
 # === RESPONSE GENERATION ===
 def ask_yggdrasil(query: str) -> str:
