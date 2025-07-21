@@ -1,9 +1,9 @@
 openapi: 3.1.0
 info:
-  title: Voice Invocation API
-  version: "1.0.0"
+  title: Yggdrasil Memory API
+  version: "1.1.0"
   description: >
-    An API for invoking archetypal moral voices to respond to ethical and emotional challenges.
+    An API for invoking moral voices and storing/retrieving AI memory in Pinecone.
 
 servers:
   - url: https://yggdrasil-ai.onrender.com
@@ -22,11 +22,54 @@ paths:
               $ref: '#/components/schemas/InvocationRequest'
       responses:
         '200':
-          description: Successful invocation response
+          description: Invocation response
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/InvocationResponse'
+
+  /memory/store:
+    post:
+      operationId: storeMemory
+      summary: Store a memory vector with metadata
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MemoryItem'
+      responses:
+        '200':
+          description: Memory stored successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  id:
+                    type: string
+
+  /memory/query:
+    get:
+      operationId: queryMemory
+      summary: Query memory by tag
+      parameters:
+        - in: query
+          name: tag
+          schema:
+            type: string
+          required: false
+      responses:
+        '200':
+          description: Memory results
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MemoryItem'
 
 components:
   schemas:
@@ -62,4 +105,21 @@ components:
       properties:
         message:
           type: string
-          description: The invoked response from the moral voice.
+
+    MemoryItem:
+      type: object
+      properties:
+        id:
+          type: string
+        content:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        type:
+          type: string
+        vector:
+          type: array
+          items:
+            type: number

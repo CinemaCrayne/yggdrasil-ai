@@ -9,7 +9,6 @@ yggdrasil_ai/memory_manager.py
 yggdrasil_ai/memory_utils.py
 yggdrasil_ai/minerva_loop.py
 yggdrasil_ai/rag.py
-yggdrasil_ai/test_add_memory.py.py
 yggdrasil_ai.egg-info/PKG-INFO
 yggdrasil_ai.egg-info/SOURCES.txt
 yggdrasil_ai.egg-info/dependency_links.txt
