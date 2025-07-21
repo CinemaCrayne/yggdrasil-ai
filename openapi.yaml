@@ -52,24 +52,51 @@ paths:
                     type: string
 
   /memory/query:
-    get:
+    post:
       operationId: queryMemory
-      summary: Query memory by tag
-      parameters:
-        - in: query
-          name: tag
-          schema:
-            type: string
-          required: false
+      summary: Query memory semantically by embedding input
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                query:
+                  type: string
       responses:
         '200':
           description: Memory results
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/MemoryItem'
+                type: object
+                properties:
+                  matches:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        score:
+                          type: number
+                        metadata:
+                          type: object
+
+components:
+  schemas:
+    MemoryItem:
+      type: object
+      properties:
+        content:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        type:
+          type: string
+      required:
+        - content
 
 components:
   schemas:
