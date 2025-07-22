@@ -127,7 +127,7 @@ def add_memory(memory: Dict):
         (pine_id, embedding, metadata)
     ])
 
-def store_memory_vector(content: str, vector: List[float], tags: List[str], memory_type: str) -> str:
+def store_memory_vector(content: str, vector: List[float], tags: List[str], memory_type: str, namespace: str = "") -> str:
     memory_id = str(uuid4())
     metadata = sanitize_metadata({
         "content": content,
@@ -137,8 +137,25 @@ def store_memory_vector(content: str, vector: List[float], tags: List[str], memo
     })
 
     # Flatten metadata (remove {"metadata": metadata} nesting)
-    pinecone_index.upsert([(memory_id, vector, metadata)])
+    pinecone_index.upsert([(memory_id, vector, metadata)], namespace=namespace)
     return memory_id
+
+@app.route("/memory/store", methods=["POST"])
+def store_memory():
+    data = request.get_json()
+    content = data.get("content")
+    tags = data.get("tags", [])
+    memory_type = data.get("type", "note")
+    namespace = data.get("namespace", "")
+
+    if not content:
+        return jsonify({"error": "Missing content field"}), 400
+
+    vector = embed_memory_text(content)
+    result = store_memory_vector(content, vector, tags, memory_type, namespace)
+
+    return jsonify({"status": "stored", "id": result, "namespace": namespace}), 200
+
 
 # === RETRIEVAL ===
 def retrieve_memories(query: str, top_k: int = 5) -> List[Dict]:
