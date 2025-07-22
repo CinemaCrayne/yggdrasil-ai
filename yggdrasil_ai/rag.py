@@ -145,7 +145,9 @@ def retrieve_memories(query: str, top_k: int = 5) -> List[Dict]:
 
 def query_memory_vector(vector: List[float], top_k: int = 5) -> List[Dict]:
     result = pinecone_index.query(vector=vector, top_k=top_k, include_metadata=True)
-    return [{"score": match.score, "metadata": match.metadata or {}} for match in result.matches]
+for match in result.matches:
+    print(f"[DEBUG] Retrieved match: score={match.score}, metadata={match.metadata}")
+return [{"score": match.score, "metadata": match.metadata or {}} for match in result.matches]
 
 # === RESPONSE GENERATION ===
 def ask_yggdrasil(query: str) -> str:
