@@ -75,12 +75,13 @@ def store_memory():
     content = data.get("content")
     tags = data.get("tags", [])
     memory_type = data.get("type", "note")
+    namespace = data.get("namespace", "")  # optional
 
     if not content:
         return jsonify({"error": "Missing content field"}), 400
 
     vector = embed_memory_text(content)
-    result = store_memory_vector(content, vector, tags, memory_type)
+    result = store_memory_vector(content, vector, tags, memory_type, namespace=namespace)
 
     return jsonify({"status": "stored", "id": result}), 200
 
@@ -95,7 +96,15 @@ def query_memory():
     vector = embed_memory_text(query)
     results = query_memory_vector(vector)
 
-    return jsonify({"matches": results}), 200
+    # Filter and coerce results to conform to OpenAPI expectations
+    filtered = []
+    for r in results:
+        metadata = r.get("metadata") or {}
+        score = r.get("score", 0)
+        if isinstance(metadata, dict) and isinstance(score, (int, float)):
+            filtered.append({"score": score, "metadata": metadata})
+
+    return jsonify({"matches": filtered}), 200
 
 @app.route("/", methods=["GET"])
 def root():
