@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify, send_file, send_from_directory
 from yggdrasil_ai.rag import add_memory, ask_yggdrasil, embed_memory_text, store_memory_vector, query_memory_vector
 from uuid import uuid4
 from flask_cors import CORS
-import openai  # ensure you have access set via environment or config
+from openai import OpenAI  # ensure you have access set via environment or config
 
 app = Flask(__name__)
 CORS(app)
@@ -82,15 +82,17 @@ def invoke_voice():
 
     return jsonify({"message": message})
 
+client = OpenAI()
+
 def generate_tags(prompt: str) -> list:
-    response = openai.ChatCompletion.create(
+    response = client.chat.completions.create(
         model="gpt-4",
         messages=[
             {"role": "system", "content": "Extract 5–7 concise tags as lowercase keywords from the following content."},
             {"role": "user", "content": prompt}
         ]
     )
-    tags_str = response['choices'][0]['message']['content']
+    tags_str = response.choices[0].message.content
     return [tag.strip().lower() for tag in tags_str.split(",") if tag.strip()]
 
 @app.route("/memory/store", methods=["POST"])
