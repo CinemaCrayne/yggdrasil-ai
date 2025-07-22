@@ -64,7 +64,15 @@ def invoke_voice():
             message = f"Unchained One invoked to expose: {injustice}"
         case "avasrota_memory":
             forgotten = data.get("forgotten", "")
-            message = f"Avasrota invoked to preserve memory of: {forgotten}"
+            context = data.get("context", "")
+            content = context if context else forgotten
+
+            if content:
+                tags = generate_tags(f"Extract tags for memory: {content}")
+                vector = embed_memory_text(content)
+                store_memory_vector(content, vector, tags, "insight", namespace="user_001")
+
+            message = f"Avasrota invoked to preserve memory of: {forgotten or context}"
         case _:
             return jsonify({"error": "Unknown voice"}), 400
 
@@ -92,7 +100,6 @@ def store_memory():
     if not content:
         return jsonify({"error": "Missing content field"}), 400
 
-    # Auto-generate tags if none provided
     if not tags:
         tags = generate_tags(f"Extract tags for memory: {content}")
 
@@ -112,7 +119,6 @@ def query_memory():
     vector = embed_memory_text(query)
     results = query_memory_vector(vector)
 
-    # Filter and coerce results to conform to OpenAPI expectations
     filtered = []
     for r in results:
         metadata = r.get("metadata") or {}
