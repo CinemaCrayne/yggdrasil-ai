@@ -14,14 +14,11 @@ from uuid import uuid4
 # === CONFIGURATION ===
 load_dotenv()
 
-openai_api_key = os.getenv("OPENAI_API_KEY")
-if not openai_api_key:
-    raise ValueError("Missing OPENAI_API_KEY in environment or .env file")
-client = OpenAI(api_key=openai_api_key)
-
-pinecone_api_key = os.getenv("PINECONE_API_KEY")
+pinecone_api_key = os.environ.get("PINECONE_API_KEY")
 if not pinecone_api_key:
-    raise ValueError("Missing PINECONE_API_KEY in environment or .env file")
+    raise RuntimeError("PINECONE_API_KEY is missing from environment")
+
+client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
 # === SANITIZATION ===
 def remove_non_ascii(value: str) -> str:
