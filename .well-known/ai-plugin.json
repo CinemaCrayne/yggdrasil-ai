@@ -2,8 +2,8 @@
   "schema_version": "v1",
   "name_for_model": "yggdrasil_ai",
   "name_for_human": "Yggdrasil AI",
-  "description_for_model": "Access memory and answer questions using Yggdrasil AI.",
-  "description_for_human": "Query Yggdrasil AI for context-aware memory and responses.",
+  "description_for_model": "Access memory and answer questions using Yggdrasil AI. Supports storing and querying contextual memories.",
+  "description_for_human": "Query Yggdrasil AI for context-aware memory and responses. You can also store new ideas or insights.",
   "auth": {
     "type": "none"
   },
