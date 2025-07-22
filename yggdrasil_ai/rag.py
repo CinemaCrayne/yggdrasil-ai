@@ -136,8 +136,8 @@ def store_memory_vector(content: str, vector: List[float], tags: List[str], memo
         "timestamp": datetime.now().isoformat()
     })
 
-    # Store metadata inside another field if needed by your Pinecone setup
-    pinecone_index.upsert([(memory_id, vector, {"metadata": metadata})])
+    # Flatten metadata (remove {"metadata": metadata} nesting)
+    pinecone_index.upsert([(memory_id, vector, metadata)])
     return memory_id
 
 # === RETRIEVAL ===
