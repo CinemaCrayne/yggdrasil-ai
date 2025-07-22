@@ -133,7 +133,6 @@ def store_memory_vector(content: str, vector: List[float], tags: List[str], memo
         "timestamp": datetime.now().isoformat()
     })
 
-    # Flatten metadata (remove {"metadata": metadata} nesting)
     pinecone_index.upsert([(memory_id, vector, metadata)], namespace=namespace)
     return memory_id
 
@@ -146,8 +145,6 @@ def retrieve_memories(query: str, top_k: int = 5) -> List[Dict]:
 def query_memory_vector(vector: List[float], top_k: int = 5) -> List[Dict]:
     result = pinecone_index.query(vector=vector, top_k=top_k, include_metadata=True)
     return [{"score": match.score, "metadata": match.metadata or {}} for match in result.matches]
-    print(f"[DEBUG] Retrieved match: score={match.score}, metadata={match.metadata}")
-return [{"score": match.score, "metadata": match.metadata or {}} for match in result.matches]
 
 # === RESPONSE GENERATION ===
 def ask_yggdrasil(query: str) -> str:
