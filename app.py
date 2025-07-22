@@ -118,12 +118,13 @@ def store_memory():
 def query_memory():
     data = request.get_json()
     query = data.get("query")
+    metadata_filter = data.get("filter", None)
 
     if not query:
         return jsonify({"error": "Missing query field"}), 400
 
     vector = embed_memory_text(query)
-    results = query_memory_vector(vector)
+    results = query_memory_vector(vector, filter=metadata_filter)
 
     filtered = []
     for r in results:
