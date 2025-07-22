@@ -63,20 +63,20 @@ def invoke_voice():
             injustice = data.get("injustice", "")
             message = f"Unchained One invoked to expose: {injustice}"
         case "avasrota_memory":
-    forgotten = data.get("forgotten", "")
-    context = data.get("context", "")
-    content = context if context else forgotten
+            forgotten = data.get("forgotten", "")
+            context = data.get("context", "")
+            content = context if context else forgotten
 
-    try:
-        if content:
-            tags = generate_tags(f"Extract tags for memory: {content}")
-            vector = embed_memory_text(content)
-            store_memory_vector(content, vector, tags, "insight", namespace="user_001")
-            message = f"Avasrota invoked to preserve memory of: {forgotten or context}"
-        else:
-            message = "Avasrota invoked, but no memory content was provided."
-    except Exception as e:
-        message = f"Avasrota failed to store memory due to: {str(e)}"
+            try:
+                if content:
+                    tags = generate_tags(f"Extract tags for memory: {content}")
+                    vector = embed_memory_text(content)
+                    store_memory_vector(content, vector, tags, "insight", namespace="user_001")
+                    message = f"Avasrota invoked to preserve memory of: {forgotten or context}"
+                else:
+                    message = "Avasrota invoked, but no memory content was provided."
+            except Exception as e:
+                message = f"Avasrota failed to store memory due to: {str(e)}"
         case _:
             return jsonify({"error": "Unknown voice"}), 400
 
